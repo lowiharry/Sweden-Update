@@ -2,14 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArticleCard } from "@/components/ArticleCard";
-
-interface Article {
-  title: string;
-  description: string;
-  link: string;
-  created: number;
-  source: string;
-}
+import { Article } from "@/lib/types";
 
 export default function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -22,11 +15,15 @@ export default function Home() {
       if (!response.ok) {
         throw new Error("Failed to fetch news");
       }
-      const data = await response.json();
+      const data: Article[] = await response.json();
       setArticles(data);
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }

@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import { newsSources } from "@/lib/newsSources";
+import { Article } from "@/lib/types";
+
+// The external API returns a slightly different structure
+interface ApiArticle extends Omit<Article, 'source'> {}
+
+interface CacheData {
+  data: Article[] | null;
+  timestamp: number;
+}
 
 // Simple in-memory cache
-const cache = {
+const cache: CacheData = {
   data: null,
   timestamp: 0,
 };
@@ -25,19 +34,19 @@ export async function GET() {
         console.error(`Failed to fetch ${source.name}: ${response.statusText}`);
         return [];
       }
-      const data = await response.json();
+      const data: { items: ApiArticle[] } = await response.json();
       // Add source name to each item
-      return data.items.map((item: any) => ({ ...item, source: source.name }));
+      return data.items.map((item) => ({ ...item, source: source.name }));
     });
 
     const allArticlesNested = await Promise.all(fetchPromises);
-    const allArticles = allArticlesNested.flat();
+    const allArticles: Article[] = allArticlesNested.flat();
 
     // Sort articles by publication date (newest first)
     allArticles.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
 
     // Update cache
-    cache.data = allArticles as any;
+    cache.data = allArticles;
     cache.timestamp = now;
 
     return NextResponse.json(allArticles);

@@ -1,10 +1,4 @@
-interface Article {
-  title: string;
-  description: string;
-  link: string;
-  created: number;
-  source: string;
-}
+import { Article } from "@/lib/types";
 
 export function ArticleCard({ article }: { article: Article }) {
   const publicationTime = new Date(article.created).toLocaleString("sv-SE");

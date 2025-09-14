@@ -3,7 +3,7 @@ import { newsSources } from "@/lib/newsSources";
 import { Article } from "@/lib/types";
 
 // The external API returns a slightly different structure
-interface ApiArticle extends Omit<Article, 'source'> {}
+type ApiArticle = Omit<Article, 'source'>;
 
 interface CacheData {
   data: Article[] | null;
